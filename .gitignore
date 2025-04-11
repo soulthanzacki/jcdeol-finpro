@@ -1,0 +1,5 @@
+archive
+test.ipynb
+service_airflow/dags/__pycache__
+service_airflow/logs
+service_airflow/dags/scripts/__pycache__
