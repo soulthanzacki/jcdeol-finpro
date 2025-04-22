@@ -30,22 +30,36 @@ def custom_pekanbaru_address():
     postal = fke.postcode()
     return f"{street} No. {number}, Kec. {district}, {city}, {province} {postal}"
 
-def generate_patients(id_list):
-    patients = []
+def generate_patients(patient_fetch):
+    new_patients = []
+    upd_patients = []
+    exst_id = [row[0] for row in patient_fetch]
+    max_id = len(exst_id)
 
-    for i in range(10):
+    for i in range(5):
         data = {}
+        id = random.randint(1, 200)
 
-        data['id'] = id_list + i + 1
-        data['complaint'] = random_complaint()
-        data['first_name'] = fke.first_name()
-        data['last_name'] = fke.last_name()
-        data['date_of_birth'] = fke.date_of_birth(minimum_age=18, maximum_age=60).strftime('%Y-%m-%d')
-        data['address'] = custom_pekanbaru_address()
-        data['phone'] = fke.phone_number().replace(' ', '')
-        patients.append(data)
+        if id in exst_id:
+            data['id'] = id
+            data['complaint'] = random_complaint()
+
+            upd_patients.append(data)
+
+        else:
+            max_id += 1
+
+            data['id'] = max_id
+            data['complaint'] = random_complaint()
+            data['first_name'] = fke.first_name()
+            data['last_name'] = fke.last_name()
+            data['date_of_birth'] = fke.date_of_birth(minimum_age=18, maximum_age=60).strftime('%Y-%m-%d')
+            data['address'] = custom_pekanbaru_address()
+            data['phone'] = fke.phone_number().replace(' ', '')
+
+            new_patients.append(data)
     
-    return patients
+    return new_patients, upd_patients
 
 def generate_visits(id_list, patient_fetch):
     visits = []
@@ -57,7 +71,7 @@ def generate_visits(id_list, patient_fetch):
 
         randpatient = random.choice(patient_fetch)
         
-        date_time = fke.date_time_between(start_date=datetime(2025,4,17), end_date=datetime(2025,12,31))
+        date_time = fke.date_time_between(start_date=datetime(2025,1,1), end_date=datetime(2025,4,22))
         hari = date_time.strftime('%A')
         tanggal = date_time.strftime('%Y-%m-%d')
 

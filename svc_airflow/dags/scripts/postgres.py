@@ -93,16 +93,27 @@ def data_check(table):
     else:
         print("Can't find the table name")
 
-def insertData_patients(patients):
+def insertData_patients(new_patients, upd_patients):
     insertData_query = """
     INSERT INTO patients (patient_id, complaint, first_name, last_name, date_of_birth, address, phone)
     VALUES (%s,%s,%s,%s,%s,%s,%s)
     """
-    for data in patients:
+
+    updateData_query = """
+    UPDATE patients SET complaint = %s
+    WHERE patient_id = %s
+    """
+
+    for data in new_patients:
         execute(insertData_query, (data['id'], data['complaint'], data['first_name'], data['last_name'],
                  data['date_of_birth'], data['address'], data['phone']))
         
         print(f"Succesfully added: {data['first_name']} {data['last_name']}")
+
+    for data in upd_patients:
+        execute(updateData_query, (data['complaint'], data['id']))
+        
+        print(f"Succesfully updated: {data['id']} {data['complaint']}")
 
 def insertData_visits(visits):
     insertData_query = """

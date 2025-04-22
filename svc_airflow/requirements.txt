@@ -1,0 +1,7 @@
+apache-airflow-providers-celery
+apache-airflow-providers-postgres
+apache-airflow-providers-docker
+apache-airflow-providers-apache-spark
+psycopg[binary]
+Faker
+requests

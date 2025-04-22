@@ -1,0 +1,34 @@
+services:
+  spark-iceberg:
+    image: tabulario/spark-iceberg
+    container_name: spark
+    networks:
+      - spark-network
+      - maindb-network
+    volumes:
+      - ./warehouse:/home/iceberg/warehouse
+      - ./notebooks:/home/iceberg/notebooks/notebooks
+      - ./data:/home/iceberg/data
+      - ./jars/hadoop-aws-3.3.4.jar:/opt/spark/jars/hadoop-aws-3.3.4.jar
+      - ./jars/aws-java-sdk-bundle-1.12.262.jar:/opt/spark/jars/aws-java-sdk-bundle-1.12.262.jar
+      - ./jars/postgresql-42.7.4.jar:/opt/spark/jars/postgresql-42.7.4.jar
+      - ./spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
+    environment:
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: password
+      AWS_REGION: us-east-1
+    ports:
+      - 7077:7077
+      - 8888:8888
+      - 8080:8080
+      - 10000:10000
+      - 10001:10001
+      - 4040-4042:4040-4042
+
+networks:
+  spark-network:
+    name: spark_network
+    driver: bridge
+  maindb-network:
+    name: maindb_network
+    external: true

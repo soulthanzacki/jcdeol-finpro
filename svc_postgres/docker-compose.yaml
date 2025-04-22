@@ -1,11 +1,12 @@
 services:
   db_main:
     image: postgres:16
+    container_name: db-main
     command: ["postgres", "-p", "5433"]
     ports:
       - "5433:5433"
     networks:
-      - finpro-network
+      - maindb-network
     environment:
       POSTGRES_DB: dental_clinic
       POSTGRES_USER: postgres
@@ -18,5 +19,6 @@ volumes:
   main_db_volumes:
 
 networks:
-  finpro-network:
-    external: true
+  maindb-network:
+    name: maindb_network
+    driver: bridge
