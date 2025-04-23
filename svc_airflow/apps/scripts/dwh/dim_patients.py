@@ -1,4 +1,3 @@
-from pyspark.sql import functions as F
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -15,34 +14,76 @@ def table_check(spark):
             phone STRING,
             load_date DATE,
             end_date DATE,
-            is_active
+            is_active INT
             )
             USING ICEBERG;
-        FROM staging.patients AS s
-        WHERE NOT EXISTS (
-            SELECT 1 
-            FROM raw.patients AS t
-            WHERE t.patient_id = s.patient_id
-              AND t.complaint = s.complaint
-              AND t.fullname = CONCAT(s.first_name, ' ', s.last_name)
-              AND t.date_of_birth = s.date_of_birth
-              AND t.address = s.address
-              AND t.phone = s.phone
-            )
         """)
+def update_data(spark, load_date):
+    return spark.sql(f"""
+        MERGE INTO dwh.dim_patients AS target
+        USING (
+        SELECT
+            p.patient_id,
+            p.complaint,
+            p.fullname,
+            p.date_of_birth,
+            p.address,
+            p.phone
+        FROM raw.patients p
+        WHERE p.load_date = '{load_date}'
+        ) AS source
+        ON target.patient_id = source.patient_id
+        AND target.is_active = 1
+        
+        WHEN MATCHED AND (
+            target.complaint != source.complaint OR
+            target.fullname != source.fullname OR
+            target.date_of_birth != source.date_of_birth OR
+            target.address != source.address OR
+            target.phone != source.phone
+        ) THEN
+        UPDATE SET
+            target.end_date = DATE('{load_date}'),
+            target.is_active = 0;
+            """)
 
-def read_data(spark):
+def read_data(spark, load_date):
     logging.info(f"Reading data from : raw.patients")
-    return spark.sql("SELECT * FROM raw.patients")
+    return spark.sql(f""" 
+        SELECT
+            s.patient_id,
+            s.complaint,
+            s.fullname,
+            s.date_of_birth,
+            s.address,
+            s.phone,
+            s.load_date,
+            NULL AS end_date,
+            1 AS is_active
+        FROM raw.patients s
+        WHERE load_date = '{load_date}'
+        AND NOT EXISTS (
+            SELECT 1
+            FROM dwh.dim_patients AS t
+            WHERE t.patient_id = s.patient_id
+                AND t.complaint = s.complaint
+                AND t.fullname = s.fullname
+                AND t.date_of_birth = s.date_of_birth
+                AND t.address = s.address
+                AND t.phone = s.phone
+                AND t.is_active = 1
+        );
+        """)
 
 def insert_data(df):
     logging.info(f"Insert data to : dwh.dim_patients")
     df.write \
     .format("iceberg") \
-    .mode("overwrite") \
+    .mode("append") \
     .saveAsTable(f"dwh.dim_patients")
 
-def transform_dim_patients(spark):
+def transform_dim_patients(spark, load_date):
     table_check(spark)
-    df = read_data(spark)
+    update_data(spark, load_date)
+    df = read_data(spark, load_date)
     insert_data(df)

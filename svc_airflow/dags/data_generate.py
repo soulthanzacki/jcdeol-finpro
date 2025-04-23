@@ -4,7 +4,7 @@ from airflow.utils.task_group import TaskGroup
 from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 from scripts.generator import generate_patients, generate_visits, generate_details
-from scripts.postgres import table_check, insertData_patients, insertData_visits, insertData_details
+from scripts.postgres import table_check, data_check, insertData_patients, insertData_visits, insertData_details
 from datetime import timedelta
 import requests
 import json

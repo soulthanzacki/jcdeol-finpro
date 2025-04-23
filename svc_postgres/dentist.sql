@@ -43,7 +43,7 @@ CREATE TABLE dentists (
 INSERT INTO dentists VALUES (1, 'Aslijan', 'Rahmawati', 'STR-2007-30350', 'Senin - Kamis', 'Pagi', '2022-03-23');
 INSERT INTO dentists VALUES (2, 'Silvia', 'Riyanti', 'STR-2010-61056', 'Senin - Kamis', 'Sore', '2023-05-06');
 INSERT INTO dentists VALUES (3, 'Wardi', 'Damanik', 'STR-2000-93455', 'Jumat - Minggu', 'Pagi', '2024-03-11');
-INSERT INTO dentists VALUES (4, 'Cagak', 'Suwarno', 'STR-2002-55577', 'Jumat - Minggu', 'Sore', '2025-01-09');
+INSERT INTO dentists VALUES (4, 'Cagak', 'Suwarno', 'STR-2002-55577', 'Jumat - Minggu', 'Sore', '2024-11-09');
 
 --
 -- PostgreSQL database dump complete

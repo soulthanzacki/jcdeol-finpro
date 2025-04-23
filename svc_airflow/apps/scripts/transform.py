@@ -38,7 +38,6 @@ class Raw(Session):
     def __init__(self, load_date):
         super().__init__()
         self.load_date = load_date
-        # self.data_date = data_date
 
         self.spark.sql("CREATE DATABASE IF NOT EXISTS raw")
 
@@ -56,23 +55,22 @@ class Raw(Session):
         transform_visit_details(self.spark, self.load_date)
 
 class DWH(Session):
-    def __init__(self):
+    def __init__(self, load_date, data_date):
         super().__init__()
+        self.load_date = load_date
+        self.data_date = data_date
 
         self.spark.sql("CREATE DATABASE IF NOT EXISTS dwh")
 
     def execute(self):
         logging.info(f"Transforming dentists data")
-        transform_dim_dentists(self.spark)
+        transform_dim_dentists(self.spark, self.load_date)
 
-    #     logging.info(f"Transforming patients data")
-    #     transform_dim_patients(self.spark)
+        logging.info(f"Transforming patients data")
+        transform_dim_patients(self.spark, self.load_date)
 
-    #     logging.info(f"Transforming visits data")
-    #     transform_fact_visits(self.spark)
+        logging.info(f"Transforming visits data")
+        transform_fact_visits(self.spark, self.load_date, self.data_date)
 
-    #     logging.info(f"Transforming visit_details data")
-    #     transform_dim_visit_details(self.spark)
-
-class Mart(Session):
-    pass
+        logging.info(f"Transforming visit_details data")
+        transform_dim_visit_details(self.spark, self.load_date)

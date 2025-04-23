@@ -11,4 +11,7 @@ svc_minio/data
 svc_airflow/jars
 svc_hive/hive/jars
 svc_spark/jars
+svc_spark/data
+svc_spark/notebooks
+svc_spark/warehouse
 Makefile

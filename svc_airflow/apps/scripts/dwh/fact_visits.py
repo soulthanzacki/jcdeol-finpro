@@ -1,4 +1,3 @@
-from pyspark.sql import functions as F
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -19,18 +18,42 @@ def table_check(spark):
             USING ICEBERG;
         """)
 
-def read_data(spark):
+def read_data(spark, load_date, data_date):
     logging.info(f"Reading data from : raw.visits")
-    return spark.sql("SELECT * FROM raw.visits")
+    return spark.sql(f"""
+                SELECT 
+                    s.visit_id,
+                    s.patient_id,
+                    s.dentist_id,
+                    s.cost,
+                    s.payment_method,
+                    s.visit_day,
+                    s.visit_date,
+                    s.load_date
+                FROM raw.visits s
+                WHERE load_date = '{load_date}'
+                AND visit_date = '{data_date}'
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM dwh.fact_visits AS t
+                    WHERE t.visit_id = s.visit_id
+                        AND t.patient_id = s.patient_id
+                        AND t.dentist_id = s.dentist_id
+                        AND t.cost = s.cost
+                        AND t.payment_method = s.payment_method
+                        AND t.visit_day = s.visit_day
+                        AND t.visit_date = s.visit_date
+                );
+                """)
 
 def insert_data(df):
     logging.info(f"Insert data to : dwh.fact_visits")
     df.write \
     .format("iceberg") \
-    .mode("overwrite") \
+    .mode("append") \
     .saveAsTable(f"dwh.fact_visits")
 
-def transform_fact_visits(spark):
+def transform_fact_visits(spark, load_date, data_date):
     table_check(spark)
-    df = read_data(spark)
+    df = read_data(spark, load_date, data_date)
     insert_data(df)

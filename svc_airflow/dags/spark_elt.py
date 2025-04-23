@@ -75,8 +75,8 @@ with DAG(
         name="extract_load",
         application="/opt/airflow/apps/main.py",
         verbose=True,
-         application_args=["--load_date={{ ds }}"
-                        #    "--data_date={{ prev_ds }}"
+         application_args=["--load_date={{ ds }}",
+                           "--data_date={{ prev_ds }}"
                           ],
         properties_file = "/opt/airflow/dags/spark-defaults.conf",
         jars = ','.join([
