@@ -1,0 +1,25 @@
+services:
+  trino:
+    image: trinodb/trino:latest
+    container_name: trino
+    networks:
+      - trino-network
+      - minio-network
+      - metastore-network
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./properties/catalog:/etc/trino/catalog
+      - ./properties/config.properties:/etc/trino/config.properties
+      - ./properties/log.properties:/etc/trino/log.properties
+
+networks:
+  trino-network:
+    name: trino_network
+    driver: bridge
+  metastore-network:
+    name: metastore_network
+    external: true
+  minio-network:
+    name: minio_network
+    external: true
